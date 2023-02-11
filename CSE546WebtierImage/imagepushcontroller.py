@@ -10,4 +10,5 @@ def pushcontroller(request) :
     image_filename = request.FILES['myfile'].name
     image_content = request.FILES['myfile'].open('rb').read()
     rs = imagequeue.sendImage(image_filename, image_content)
-    return HttpResponse('Hello World')
+    result = imagequeue.waitAndGetResult(image_filename)
+    return HttpResponse(result)
