@@ -10,7 +10,7 @@ ReceivedMessages = None
 ReceivedMessagesLock = None
 ReceivedMessagesConditionVariable = None
 
-REQUIRED_SYM = "xN<--required-->Nx"
+REQUIRED_SYM = "xN<--required--deriuqer-->Nx"
 
 def markRequiredToReceiveMessage(image_filename) :
     global ReceivedMessages
