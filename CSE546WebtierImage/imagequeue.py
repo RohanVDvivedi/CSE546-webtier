@@ -33,6 +33,7 @@ def unmarkRequiredToReceiveMessage_UNSAFE(image_filename) :
                 del ReceivedMessages[image_filename][i]
                 if(len(ReceivedMessages[image_filename]) == 0) :
                     del ReceivedMessages[image_filename]
+                ReceivedMessagesConditionVariable.notifyAll()
                 break
 
 def setResultToReceivedMessage(image_filename, image_result) :
@@ -55,6 +56,7 @@ def waitForResultFromReceivedMessage(image_filename, timeout = None) :
     ReceivedMessagesLock.acquire()
     image_result = None
     while True :
+        is_marked_required = False
         if(image_filename in ReceivedMessages) :
             for i in range(0, len(ReceivedMessages[image_filename])) :
                 if(ReceivedMessages[image_filename][i] != REQUIRED_SYM) :
@@ -63,7 +65,11 @@ def waitForResultFromReceivedMessage(image_filename, timeout = None) :
                     if(len(ReceivedMessages[image_filename]) == 0) :
                         del ReceivedMessages[image_filename]
                     break
-        if(image_result == None and (timeout == None or timeout > 0.0)) :
+                else :
+                    is_marked_required = True
+        else :
+            break
+        if(image_result == None and is_marked_required == True and (timeout == None or timeout > 0.0)) :
             elapsed_time = time.time()
             was_notified = ReceivedMessagesConditionVariable.wait(timeout)
             elapsed_time = time.time() - elapsed_time
