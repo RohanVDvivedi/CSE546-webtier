@@ -1,6 +1,7 @@
 import boto3
 import base64
 import threading
+import time
 
 sqs = None
 RequestQueue = None
@@ -47,7 +48,7 @@ def setResultToReceivedMessage(image_filename, image_result) :
                 break
     ReceivedMessagesLock.release()
 
-def waitForResultFromReceivedMessage(image_filename) :
+def waitForResultFromReceivedMessage(image_filename, timeout = None) :
     global ReceivedMessages
     global ReceivedMessagesLock
     global ReceivedMessagesConditionVariable
@@ -62,8 +63,12 @@ def waitForResultFromReceivedMessage(image_filename) :
                     if(len(ReceivedMessages[image_filename]) == 0) :
                         del ReceivedMessages[image_filename]
                     break
-        if(image_result == None) :
-            ReceivedMessagesConditionVariable.wait()
+        if(image_result == None and (timeout == None or timeout > 0.0)) :
+            elapsed_time = time.time()
+            was_notified = ReceivedMessagesConditionVariable.wait(timeout)
+            elapsed_time = time.time() - elapsed_time
+            if(timeout != None) :
+                timeout -= elapsed_time
         else :
             break
     ReceivedMessagesLock.release()
