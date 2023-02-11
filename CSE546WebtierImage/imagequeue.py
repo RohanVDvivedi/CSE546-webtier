@@ -10,6 +10,53 @@ ReceivedMessages = None
 ReceivedMessagesLock = None
 ReceivedMessagesConditionVariable = None
 
+REQUIRED_SYM = "xN<--required-->Nx"
+
+def markRequiredToReceiveMessage(image_filename) :
+    global ReceivedMessages
+    global ReceivedMessagesLock
+    global ReceivedMessagesConditionVariable
+    ReceivedMessagesLock.acquire()
+    if(image_filename not in ReceivedMessages) :
+        ReceivedMessages[image_filename] = []
+    ReceivedMessages[image_filename].append(REQUIRED_SYM)
+    ReceivedMessagesLock.release()
+
+def setResultToReceivedMessage(image_filename, image_result) :
+    global ReceivedMessages
+    global ReceivedMessagesLock
+    global ReceivedMessagesConditionVariable
+    ReceivedMessagesLock.acquire()
+    if(image_filename in ReceivedMessages) :
+        for i in range(0, len(ReceivedMessages[image_filename])) :
+            if(ReceivedMessages[image_filename][i] == REQUIRED_SYM) :
+                ReceivedMessages[image_filename][i] = image_result
+                ReceivedMessagesConditionVariable.notifyAll()
+                break
+    ReceivedMessagesLock.release()
+
+def waitForResultFromReceivedMessage(image_filename) :
+    global ReceivedMessages
+    global ReceivedMessagesLock
+    global ReceivedMessagesConditionVariable
+    ReceivedMessagesLock.acquire()
+    image_result = None
+    while True :
+        if(image_filename in ReceivedMessages) :
+            for i in range(0, len(ReceivedMessages[image_filename])) :
+                if(ReceivedMessages[image_filename][i] != REQUIRED_SYM) :
+                    image_result = ReceivedMessages[image_filename][i]
+                    del ReceivedMessages[image_filename][i]
+                    if(len(ReceivedMessages[image_filename]) == 0) :
+                        del ReceivedMessages[image_filename]
+                    break
+        if(image_result == None) :
+            ReceivedMessagesConditionVariable.wait()
+        else :
+            break
+    ReceivedMessagesLock.release()
+    return image_result
+
 def init() :
     global sqs
     global RequestQueue
@@ -39,37 +86,9 @@ def parse_message(data) :
 
 def receiverThreadFunction() :
     global ResponseQueue
-    global ReceivedMessages
-    global ReceivedMessagesLock
-    global ReceivedMessagesConditionVariable
     while(True) :
         for message in ResponseQueue.receive_messages():
             message_content = message.body
             image_filename, image_result = parse_message(message_content)
-
-            ReceivedMessagesLock.acquire()
-            print(image_filename + " -> " + image_result)
-            if (image_filename in ReceivedMessages) and (ReceivedMessages[image_filename] == "discard on arrival") :
-                del ReceivedMessages[image_filename]
-            else :
-                ReceivedMessages[image_filename] = image_result
-                ReceivedMessagesConditionVariable.notifyAll()
-            ReceivedMessagesLock.release()
-
+            setResultToReceivedMessage(image_filename, image_result)
             message.delete()
-
-
-def waitAndGetResult(name) :
-    global ReceivedMessages
-    global ReceivedMessagesLock
-    global ReceivedMessagesConditionVariable
-    ReceivedMessagesLock.acquire()
-
-    while name not in ReceivedMessages :
-        ReceivedMessagesConditionVariable.wait()
-    
-    result = ReceivedMessages[name]
-
-    ReceivedMessagesLock.release()
-
-    return result

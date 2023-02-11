@@ -9,6 +9,9 @@ def pushcontroller(request) :
         return HttpResponse('error: myfile must be present', status = 400)
     image_filename = request.FILES['myfile'].name
     image_content = request.FILES['myfile'].open('rb').read()
-    rs = imagequeue.sendImage(image_filename, image_content)
-    result = imagequeue.waitAndGetResult(image_filename)
+    imagequeue.markRequiredToReceiveMessage(image_filename)
+    imagequeue.sendImage(image_filename, image_content)
+    result = imagequeue.waitForResultFromReceivedMessage(image_filename)
+    if(result == None) :
+        return HttpResponse('error: timeout on receiving response', status = 500)
     return HttpResponse(result)
