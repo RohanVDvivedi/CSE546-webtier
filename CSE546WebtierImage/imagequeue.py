@@ -71,6 +71,8 @@ def waitForResultFromReceivedMessage(image_filename, timeout = None) :
                 timeout -= elapsed_time
         else :
             break
+    if(image_result == None) :
+        unmarkRequiredToReceiveMessage_UNSAFE(image_filename)
     ReceivedMessagesLock.release()
     return image_result
 
