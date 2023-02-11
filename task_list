@@ -1,3 +1,1 @@
  * store access keys in environment variable
- * wait for waits for only a specific period of time and stores discard message if message is not received
- * before going on a wait we check if there exists a discard message for our file name and we remove it if it exists
