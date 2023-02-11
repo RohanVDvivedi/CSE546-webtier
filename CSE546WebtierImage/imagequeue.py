@@ -22,6 +22,18 @@ def markRequiredToReceiveMessage(image_filename) :
     ReceivedMessages[image_filename].append(REQUIRED_SYM)
     ReceivedMessagesLock.release()
 
+def unmarkRequiredToReceiveMessage_UNSAFE(image_filename) :
+    global ReceivedMessages
+    global ReceivedMessagesLock
+    global ReceivedMessagesConditionVariable
+    if(image_filename in ReceivedMessages) :
+        for i in range(0, len(ReceivedMessages[image_filename])) :
+            if(ReceivedMessages[image_filename][i] == REQUIRED_SYM) :
+                del ReceivedMessages[image_filename][i]
+                if(len(ReceivedMessages[image_filename]) == 0) :
+                    del ReceivedMessages[image_filename]
+                break
+
 def setResultToReceivedMessage(image_filename, image_result) :
     global ReceivedMessages
     global ReceivedMessagesLock
