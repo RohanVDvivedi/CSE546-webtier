@@ -1,2 +1,1 @@
-pipenv shell
-python3 manage.py runserver 9000
+pipenv run python3 manage.py runserver 9000
