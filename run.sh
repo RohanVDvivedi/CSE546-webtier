@@ -1,1 +1,2 @@
+#!/usr/bin/sh
 pipenv run python3 manage.py runserver 9000
