@@ -3,6 +3,12 @@ import base64
 import threading
 import time
 
+REQUEST_QUEUE_NAME = "RequestQueue"
+RESPONSE_QUEUE_NAME = "ResponseQueue"
+REGION_NAME = "us-east-1"
+AWS_ACCESS_KEY_ID = ""
+AWS_SECRET_ACCESS_KEY = ""
+
 sqs = None
 RequestQueue = None
 ResponseQueue = None
@@ -90,9 +96,9 @@ def init() :
     global ReceivedMessages
     global ReceivedMessagesLock
     global ReceivedMessagesConditionVariable
-    sqs = boto3.resource('sqs', region_name='us-east-1', aws_access_key_id="", aws_secret_access_key= "")
-    RequestQueue = sqs.get_queue_by_name(QueueName='RequestQueue')
-    ResponseQueue = sqs.get_queue_by_name(QueueName='ResponseQueue')
+    sqs = boto3.resource('sqs', region_name = REGION_NAME, aws_access_key_id = AWS_ACCESS_KEY_ID, aws_secret_access_key = AWS_SECRET_ACCESS_KEY)
+    RequestQueue = sqs.get_queue_by_name(QueueName = REQUEST_QUEUE_NAME)
+    ResponseQueue = sqs.get_queue_by_name(QueueName = RESPONSE_QUEUE_NAME)
     print("RequestQueue and ResponseQueue initialized")
     ReceivedMessages = {}
     ReceivedMessagesLock = threading.Lock()
