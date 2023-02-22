@@ -11,7 +11,7 @@ def pushcontroller(request) :
     image_content = request.FILES['myfile'].open('rb').read()
     imagequeue.markRequiredToReceiveMessage(image_filename)
     imagequeue.sendImage(image_filename, image_content)
-    result = imagequeue.waitForResultFromReceivedMessage(image_filename, timeout = 5 * 60.0) # timesouts in 5 minutes
+    result = imagequeue.waitForResultFromReceivedMessage(image_filename, timeout = 15 * 60.0) # timesouts in 5 minutes
     if(result == None) :
         print("sending 500 due to a timeout")
         return HttpResponse('error: timeout on receiving response', status = 500)
