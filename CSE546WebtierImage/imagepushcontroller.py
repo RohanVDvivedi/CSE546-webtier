@@ -4,6 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 from . import imagequeue
 
 @csrf_exempt
+def pingcontroller(request) :
+    return HttpResponse("pong")
+
+@csrf_exempt
 def pushcontroller(request) :
     if 'myfile' not in request.FILES :
         return HttpResponse('error: myfile must be present', status = 400)
