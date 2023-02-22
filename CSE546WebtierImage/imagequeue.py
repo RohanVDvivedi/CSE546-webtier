@@ -118,7 +118,7 @@ def parse_message(data) :
 def receiverThreadFunction() :
     global ResponseQueue
     while(True) :
-        for message in ResponseQueue.receive_messages():
+        for message in ResponseQueue.receive_messages(WaitTimeSeconds=20):
             message_content = message.body
             image_filename, image_result = parse_message(message_content)
             setResultToReceivedMessage(image_filename, image_result)
