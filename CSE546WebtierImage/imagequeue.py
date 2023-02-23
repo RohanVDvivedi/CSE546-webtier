@@ -120,7 +120,7 @@ def receiverThreadFunction() :
     while(True) :
         for message in ResponseQueue.receive_messages(WaitTimeSeconds=20):
             message_content = message.body
-            if(message_content.find(":") == -1)
+            if(message_content.find(":") == -1) :
                 message.delete()
                 continue
             image_filename, image_result = parse_message(message_content)
