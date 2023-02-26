@@ -10,7 +10,6 @@ AWS_ACCESS_KEY_ID = ""
 AWS_SECRET_ACCESS_KEY = ""
 
 sqs = None
-RequestQueue = None
 ResponseQueue = None
 ReceiverThread = None
 ReceivedMessages = None
@@ -90,7 +89,6 @@ def waitForResultFromReceivedMessage(image_filename, timeout = None) :
 
 def init() :
     global sqs
-    global RequestQueue
     global ResponseQueue
     global ReceiverThread
     global ReceivedMessages
@@ -108,7 +106,7 @@ def init() :
     print("Received Thread started")
 
 def sendImage(name, image) :
-    global RequestQueue
+    RequestQueue = sqs.get_queue_by_name(QueueName = REQUEST_QUEUE_NAME)
     return RequestQueue.send_message(MessageBody = name + ':' + base64.b64encode(image).decode("ascii"))
 
 def parse_message(data) :
